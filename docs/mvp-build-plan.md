@@ -63,6 +63,15 @@ pbb/
 - [x] README: one paragraph + "run tests" command
 **Done when:** CI green on an empty test.
 
+### CI hardening (proposed 2026-11-08)
+- [ ] Branch protection on `main`: require CI green (Harry, GitHub settings)
+- [x] Sandbox policy guard `tests/runner/test_sandbox_policy.py`: required flags, forbidden-flag list, resource ceilings per ladder, single ro mount, env = thread vars only, fixed command
+- [x] CI job `image`: build images/standard, run `images/smoke/main.py` via `scripts/image_smoke.py` with production flags but runc (checks uid, no caps, no_new_privs, ro fs, /tmp noexec, no network, libs incl. numba on ro fs). Written; first verified run = next push
+- [x] Dependabot `.github/dependabot.yml` (uv, actions, docker base image; weekly, targets `dev`)
+- [ ] M4: CI job installs runsc on GitHub runner, runs `-m vm_only` nasty bots (own bots only; **needs Harry's OK**: loosens "VM only" to "ephemeral VM")
+- [ ] After M2: nightly big Hypothesis run + same-seed match twice → identical logs
+- Never in CI: uploaded bots. Deferred: Trivy, CodeQL.
+
 ## M1: Engine core (pure, no I/O)
 Interface sketch:
 - `HandState.new(seed_cards, button, stacks, blinds)`
@@ -161,4 +170,5 @@ Log line per hand (proposed, terse, ACPC-flavoured):
 ## Build log
 - 2026-11-07: Plan written. No code yet. Waiting on preconditions.
 - 2026-11-07: Python confirmed. Built the walkie-talkie ahead of M1: M0 skeleton, protocol (messages/fsm/connection), local + docker backends, Dockerfile, call/random bots, `pbb check`. 63 tests green locally; docker backend untested (needs VM). Not committed.
-- 2026-11-08: Game params confirmed. M1 engine done: `pbb/engine/{cards,evaluate,rules,match}.py`, eval7 0.1.11 installs on 3.12/Windows. 121 tests green (58 engine incl. 500-example Hypothesis run). Not committed.
+- 2026-11-08: Game params confirmed. M1 engine done: `pbb/engine/{cards,evaluate,rules,match}.py`, eval7 0.1.11 installs on 3.12/Windows. 121 tests green (58 engine incl. 500-example Hypothesis run). Committed `4273145` on `dev` (first commit; not pushed).
+- 2026-11-08: CI hardening 1–3: sandbox policy guard (18 tests, 139 total green), image build + smoke job, Dependabot. Image job unverified until pushed (no Docker on Harry's machine).

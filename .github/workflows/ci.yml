@@ -4,13 +4,34 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
+    name: lint + tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv sync
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run pytest
+      - name: Install deps
+        run: uv sync
+      - name: Lint (ruff)
+        run: uv run ruff check .
+      - name: Format check (ruff)
+        run: uv run ruff format --check .
+      - name: Tests (pytest, incl. sandbox policy guard)
+        run: uv run pytest -ra
+
+  image:
+    name: sandbox image build + smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install deps
+        run: uv sync
+      - name: Build standard image
+        run: docker build -t bot-python-standard:3.12 images/standard
+      - name: Smoke check (production flags, runc instead of gVisor)
+        run: uv run python scripts/image_smoke.py --runtime runc

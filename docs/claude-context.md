@@ -21,7 +21,8 @@ _Last updated: 2026-11-08_
 
 ## Current status
 - **Phase: building. M1 engine done 2026-11-08** (`pbb/engine/`: cards, evaluate (eval7), rules `HandState`, match duplicate schedule; 121 tests green). **Next: finish M2** = `pbb match` + equity_bot.
-- Python confirmed. The bot↔engine "walkie-talkie" (Harry's name for it) is built ahead of M1: `pbb/protocol/{messages,fsm,connection}.py`, `pbb/runner/{local,docker}.py`, `images/standard/Dockerfile`, call/random bots, `pbb check`. 63 tests green on Harry's Windows machine (own harmless fixture bots only). Docker/gVisor backend written but untested (VM only). **Nothing committed yet** (branch `dev`, remote `harry-dunlop/poker-bot-battling`).
+- CI hardening 1–3 done 2026-11-08 (uncommitted): policy guard test, image smoke job, Dependabot. Branch protection on `main` is Harry's to switch on.
+- Python confirmed. The bot↔engine "walkie-talkie" (Harry's name for it) is built ahead of M1: `pbb/protocol/{messages,fsm,connection}.py`, `pbb/runner/{local,docker}.py`, `images/standard/Dockerfile`, call/random bots, `pbb check`. 63 tests green on Harry's Windows machine (own harmless fixture bots only). Docker/gVisor backend written but untested (VM only). First commit `4273145` on `dev` 2026-11-08, **not pushed** (CI unverified until push).
 - Dev env: I installed uv via `pip --user` into Python 3.14 (not on PATH); in Harry's VS Code terminal `python` is the activated `.venv` (3.12, no uv), so `python -m uv` fails for him. Told him to `winget install astral-sh.uv` and use plain `uv`. uv-managed Python 3.12 runs the project.
 - MVP scope: Standard-Rapid only; Open, Regular, live follow/stats, MIT shim, JS, SSH all post-MVP.
 - Web side: Next.js + Supabase + TypeScript (effectively settled). Match logs proposed for Cloudflare R2.
@@ -32,6 +33,7 @@ _Last updated: 2026-11-08_
 ## Decision log (newest first)
 | Date | Decision | Notes |
 |---|---|---|
+| 2026-11-08 | (Proposed) CI hardening list in mvp-build-plan; biggest item = branch protection requiring CI. Open: allow nasty bots under gVisor on GitHub's ephemeral runners? | Harry worried security regressions sneak through |
 | 2026-11-08 | **Game params confirmed:** blinds 1/2, stack 400 (200 bb), reset every hand | Harry: "go for it" |
 | 2026-11-08 | (Proposed) Fold illegal when check is free; invalid reply then = check, not fold. Raise cap = effective stack | From building M1 |
 | 2026-11-08 | (Proposed) **CI yes, CD web only.** GitHub Actions: pytest + ruff (+ later image build-only, TS parser contract test); never run uploaded bots in CI. Web: Vercel auto-deploy + preview branches; Supabase migrations manual. Runner box: manual deploy for MVP, no deploy SSH key in Actions; later a pull model (box polls signed tag) | Harry asked if CI/CD is worth it |
@@ -82,6 +84,7 @@ _Last updated: 2026-11-08_
 - Harry rejected me running `git init` + `remote add` for him; he did it himself. Ask before git setup commands.
 
 ## Unverified assumptions (check before relying on them)
+- Dependabot supports the `uv` ecosystem (believed GA 2025; not checked).
 - ~4 decisions per hand in heads-up NLHE.
 - Match lengths (Rapid ~1 min, Regular ~14 min, Open ~40 min) are worst cases.
 - "Many heads-up hands end preflop" is general poker knowledge, not measured.
